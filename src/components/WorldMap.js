@@ -7,7 +7,7 @@ const WorldMap = (zoomLevel = 2) => {
     const validZoomLevel = Math.max(1, Math.min(2, 18));
   return (
     <div>
-      <MapContainer center={[51.505, -0.09]} zoom={validZoomLevel} scrollWheelZoom={true} style={{ height: '100vh', width: '100%' }}>
+      <MapContainer center={[51.505, -0.09]} zoom={validZoomLevel} scrollWheelZoom={true} style={{ height: '100vh', width: '100git %' }}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

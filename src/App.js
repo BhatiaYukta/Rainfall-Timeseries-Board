@@ -1,15 +1,24 @@
-import React from "react"
-import WorldMap from "./components/WorldMap";
+// App.js
+import React, { useState } from 'react';
+import WorldMap from './WorldMap';
+import RainfallChart from './RainfallChart';
+import { fetchRainfallData } from './api';
 
-function App() {
+const App = () => {
+  const [rainfallData, setRainfallData] = useState([]);
+
+  const handleRegionClick = async (lat, lng) => {
+    const data = await fetchRainfallData(lat, lng);
+    setRainfallData(data);
+  };
+
   return (
-    <div style={{ display: 'flex' }}>
-    <div style={{ flex: 1 ,position: "static"}}>
-      <WorldMap  />
+    <div>
+      <h1>Rainfall Data Visualization</h1>
+      <WorldMap onRegionClick={handleRegionClick} />
+      {rainfallData.length > 0 && <RainfallChart data={rainfallData} />}
     </div>
-    
-  </div>
   );
-}
+};
 
 export default App;
