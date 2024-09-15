@@ -1,0 +1,29 @@
+/* components/Header.css */
+
+/* Navbar brand style */
+.navbar-brand {
+  font-size: 24px;
+  font-weight: bold;
+  color: #c82333 !important;
+  margin-left: -6%; /* Adjust this value as needed */
+  margin-right: 0px;
+}
+
+/* Navbar link styles */
+.nav-item {
+  font-size: 18px;
+  padding: 15px 15px;
+  color: #000;
+  text-decoration: none;
+}
+
+.nav-item.active {
+  font-weight: bold;
+  color: #000 !important;
+  border-bottom: 2px solid #c82333;
+}
+
+.nav-item:hover {
+  color: #000;
+  text-decoration: none;
+}

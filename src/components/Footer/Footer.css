@@ -1,0 +1,33 @@
+/* Footer styles */
+.footer {
+    background-color: #f8f9fa;
+    padding: 10px 20px; /* Add padding to create space inside footer */
+    border-top: 1px solid #e7e7e7;
+    width: 100%;
+    display: flex;
+    justify-content: space-between; /* Align left and right items on the same line */
+    align-items: center; /* Vertically center items */
+  }
+  
+  .footer .text-muted {
+    font-size: 14px;
+    color: #6c757d;
+  }
+  
+  .footer-links {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center; /* Ensure vertical alignment for links */
+  }
+  
+  .footer-item {
+    font-size: 14px;
+    padding-left: 15px;
+    color: #000;
+  }
+  
+  .footer-item:hover {
+    text-decoration: none;
+    color: #c82333;
+  }
+  

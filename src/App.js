@@ -1,24 +1,33 @@
-// App.js
-import React, { useState } from 'react';
-import WorldMap from './WorldMap';
-import RainfallChart from './RainfallChart';
-import { fetchRainfallData } from './api';
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+} from "react-router-dom";
+import Header from "./components/Header/Header";
+import "./App.css"; // Import custom CSS
+import Footer from "./components/Footer/Footer";
 
-const App = () => {
-  const [rainfallData, setRainfallData] = useState([]);
-
-  const handleRegionClick = async (lat, lng) => {
-    const data = await fetchRainfallData(lat, lng);
-    setRainfallData(data);
-  };
-
+function App() {
   return (
-    <div>
-      <h1>Rainfall Data Visualization</h1>
-      <WorldMap onRegionClick={handleRegionClick} />
-      {rainfallData.length > 0 && <RainfallChart data={rainfallData} />}
-    </div>
+    <Router>
+      <div className="App">
+        {/* Header with Tabs */}
+
+        <Header />
+        {/* Page Content */}
+        <div className="content">
+          <Routes>
+            <Route path="/dashboard" />
+            <Route path="/help" />
+          </Routes>
+        </div>
+
+        {/* Footer */}
+        <Footer/>
+      </div>
+    </Router>
   );
-};
+}
 
 export default App;
