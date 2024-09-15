@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import moment from 'moment';
+import MapComponent from './components/MapComponent'; // Import the map component
 
 const RainfallChart = () => {
   const [data, setData] = useState([]);
@@ -31,12 +32,13 @@ const RainfallChart = () => {
     }
   };
 
-  // Fetch data on component mount
+  // Fetch data on component mount and when the date range is updated
   useEffect(() => {
     fetchData(dateRange.start, dateRange.end);
   }, [dateRange]);
 
   const handleApply = () => {
+    // Update the date range only when the Apply button is clicked
     setDateRange({
       start: startDate,
       end: endDate,
@@ -55,8 +57,12 @@ const RainfallChart = () => {
 
   return (
     <div>
-      <h2>Rainfall Over Time</h2>
-
+      {/* Map Component */}
+      <MapComponent />
+      <br/>
+      <h5>Rainfall Over Time</h5>
+      <br />
+      
       {/* Date Range Filter */}
       <div style={{ marginBottom: '20px' }}>
         <label>Start Date: </label>
@@ -78,8 +84,10 @@ const RainfallChart = () => {
         </button>
       </div>
 
+      
+
       {/* Graph */}
-      <LineChart width={800} height={400} data={formattedData}>
+      <LineChart width={1350} height={500} data={formattedData}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="time" />
         <YAxis />
