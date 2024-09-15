@@ -1,9 +1,10 @@
 from flask import Flask, jsonify
 import pandas as pd
 from config import DATA_FILE
+from flask_cors import CORS
 
 app = Flask(__name__)
-
+CORS(app)
 def load_data():
     try:
         df = pd.read_excel("D:/Rainfall/Rainfall-Timeseries-Board/backend/Files/Data.xlsx", engine='openpyxl')

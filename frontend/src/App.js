@@ -7,6 +7,7 @@ import {
 import Header from "./components/Header/Header";
 import "./App.css"; // Import custom CSS
 import Footer from "./components/Footer/Footer";
+import RainfallChart from "./RainfallChart";
 
 function App() {
   return (
@@ -18,7 +19,7 @@ function App() {
         {/* Page Content */}
         <div className="content">
           <Routes>
-            <Route path="/dashboard" />
+            <Route path="/dashboard" element={<RainfallChart/>}/>
             <Route path="/help" />
           </Routes>
         </div>
