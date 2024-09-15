@@ -1,10 +1,8 @@
-// src/RainfallChart.js
 import React, { useEffect, useState, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import moment from 'moment';
-import MapComponent from './components/MapComponent'; // Import the map component
 
-const RainfallChart = () => {
+const RainfallChart = ({ selectedRegion }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -16,12 +14,12 @@ const RainfallChart = () => {
   const [startDate, setStartDate] = useState(dateRange.start);
   const [endDate, setEndDate] = useState(dateRange.end);
 
-  // Fetch data based on date range
-  const fetchData = async (start, end) => {
+  // Fetch data based on date range and selected region
+  const fetchData = async (start, end, region) => {
     setLoading(true);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/rainfall-summary?start_date=${start}&end_date=${end}`
+        `${process.env.REACT_APP_API_URL}/rainfall-summary?start_date=${start}&end_date=${end}&region=${region}`
       );
       const result = await response.json();
       setData(result.rainfall_data);
@@ -32,13 +30,12 @@ const RainfallChart = () => {
     }
   };
 
-  // Fetch data on component mount and when the date range is updated
+  // Fetch data when component mounts or date range/region changes
   useEffect(() => {
-    fetchData(dateRange.start, dateRange.end);
-  }, [dateRange]);
+    fetchData(dateRange.start, dateRange.end, selectedRegion.name);
+  }, [dateRange, selectedRegion]);
 
   const handleApply = () => {
-    // Update the date range only when the Apply button is clicked
     setDateRange({
       start: startDate,
       end: endDate,
@@ -57,12 +54,8 @@ const RainfallChart = () => {
 
   return (
     <div>
-      {/* Map Component */}
-      <MapComponent />
-      <br/>
-      <h5>Rainfall Over Time</h5>
-      <br />
-      
+      <h5>{selectedRegion.name} Rainfall Timeseries Plot</h5>
+      <br></br>
       {/* Date Range Filter */}
       <div style={{ marginBottom: '20px' }}>
         <label>Start Date: </label>
@@ -83,8 +76,6 @@ const RainfallChart = () => {
           Apply
         </button>
       </div>
-
-      
 
       {/* Graph */}
       <LineChart width={1350} height={500} data={formattedData}>
