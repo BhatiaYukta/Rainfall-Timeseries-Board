@@ -31,7 +31,7 @@ function App() {
             {/* Redirect root path to /dashboard */}
             <Route path="/" element={<Navigate to="/dashboard" />} />
             <Route path="/dashboard" element={<RainfallChart selectedRegion={selectedRegion} />} />
-            <Route path="/help" />
+           
           </Routes>
         </div>
 

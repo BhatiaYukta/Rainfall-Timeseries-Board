@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Label } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Label, ResponsiveContainer } from 'recharts';
 import moment from 'moment';
 
 const RainfallChart = ({ selectedRegion }) => {
@@ -36,9 +36,12 @@ const RainfallChart = ({ selectedRegion }) => {
     }
   };
 
-  // Fetch data when component mounts or date range/region changes
   useEffect(() => {
-    fetchData(dateRange.start || moment().subtract(3, 'months').format('YYYY-MM-DD'), dateRange.end || moment().format('YYYY-MM-DD'), selectedRegion.name);
+    fetchData(
+      dateRange.start || moment().subtract(3, 'months').format('YYYY-MM-DD'),
+      dateRange.end || moment().format('YYYY-MM-DD'),
+      selectedRegion.name
+    );
   }, [dateRange, selectedRegion]);
 
   const handleApply = () => {
@@ -48,39 +51,36 @@ const RainfallChart = ({ selectedRegion }) => {
     });
   };
 
-  // Helper function to aggregate data
   const aggregateData = (data, timeUnit) => {
     const groupedData = data.reduce((acc, curr) => {
       const timeKey = moment(curr.time).startOf(timeUnit).format({
-        '15-min': 'YYYY-MM-DD HH:mm',  // Group by 15 minutes
-        hour: 'YYYY-MM-DD HH:00',      // Group by hour (start of each hour)
-        day: 'YYYY-MM-DD',             // Group by day
-        month: 'YYYY-MM',              // Group by month
+        '15-min': 'YYYY-MM-DD HH:mm',
+        hour: 'YYYY-MM-DD HH:00',
+        day: 'YYYY-MM-DD',
+        month: 'YYYY-MM',
       }[timeFilter]);
 
       if (!acc[timeKey]) {
         acc[timeKey] = 0;
       }
-      acc[timeKey] += curr.total_rainfall || 0;  // Sum rainfall for the time period, ensuring no undefined values
+      acc[timeKey] += curr.total_rainfall;
 
       return acc;
     }, {});
 
-    // Convert the grouped data into an array for charting
     return Object.keys(groupedData).map((key) => ({
       time: key,
       rainfall: groupedData[key],
     }));
   };
 
-  // Group and aggregate data based on the selected time filter
   const formattedData = useMemo(() => {
     const timeUnit = {
       '15-min': 'minute',
       hour: 'hour',
       day: 'day',
       month: 'month',
-    }[timeFilter];  // Map selected time filter to the corresponding time unit
+    }[timeFilter];
 
     return aggregateData(data, timeUnit);
   }, [data, timeFilter]);
@@ -89,18 +89,16 @@ const RainfallChart = ({ selectedRegion }) => {
     setTimeFilter(e.target.value);
   };
 
-  // X-Axis Tick Formatter for better readability
   const xAxisTickFormatter = (tick) => {
     return moment(tick).format({
-      '15-min': 'MM-DD HH:mm',  // For 15-minute intervals, show date and time
-      hour: 'MM-DD HH:mm',      // For hours, show date and time
-      day: 'MM-DD',             // For days, show date only
-      month: 'YYYY-MM',         // For months, show year and month
+      '15-min': 'MM-DD HH:mm',
+      hour: 'MM-DD HH:mm',
+      day: 'MM-DD',
+      month: 'YYYY-MM',
     }[timeFilter]);
   };
 
-  // Tooltip formatter to round off rainfall values to 2 decimal places and show 0 if empty
-  const tooltipFormatter = (value) => (value !== undefined ? value.toFixed(2) : '0.00');
+  const tooltipFormatter = (value) => value ? value.toFixed(2) : '0.00';
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -112,14 +110,14 @@ const RainfallChart = ({ selectedRegion }) => {
 
       {/* Date Range Filter */}
       <div style={{ marginBottom: '20px' }}>
-        <label style={{ marginRight: '10px' }}>Start Date: </label>
+        <label style={{ marginRight: '10px' }}>Start Date :  </label>
         <input
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
           max={endDate}
         />
-        <label style={{ marginLeft: '10px', marginRight: '10px' }}>End Date: </label>
+        <label style={{ marginLeft: '10px', marginRight: '10px' }}>End Date : </label>
         <input
           type="date"
           value={endDate}
@@ -143,30 +141,47 @@ const RainfallChart = ({ selectedRegion }) => {
       </div>
 
       {/* Graph */}
-      <LineChart
-        width={1350}
-        height={500}
-        data={formattedData}
-        margin={{ top: 5, right: 30, left: 50, bottom: 100 }}  // Adjusted margin for better label visibility
-      >
-        <CartesianGrid strokeDasharray="3 3" />
+      <div style={{ position: 'relative' }}>
+        <ResponsiveContainer width="100%" height={500}>
+          <LineChart
+            data={formattedData}
+            margin={{ top: 5, right: 30, left: 50, bottom: 100 }}
+          >
+            {/* Custom Background for the grid area */}
+            <rect
+              x="0"
+              y="0"
+              width="100%"
+              height="100%"
+              fill="url(#rainBackground)"  // Gradient rain effect
+              style={{ pointerEvents: 'none' }}  // Disable interaction on background
+            />
 
-        {/* XAxis with vertical ticks and tickFormatter */}
-        <XAxis dataKey="time" tickFormatter={xAxisTickFormatter} tickCount={8} angle={-45} textAnchor="end">
-          <Label value="Time" position="bottom" offset={20} /> {/* Adjusted offset for better readability */}
-        </XAxis>
+            <defs>
+              {/* Defining the gradient pattern for rain effect */}
+              <linearGradient id="rainBackground" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style={{ stopColor: 'rgba(0, 119, 255, 0.2)', stopOpacity: 1 }} />
+                <stop offset="100%" style={{ stopColor: 'rgba(255, 255, 255, 0.8)', stopOpacity: 1 }} />
+              </linearGradient>
+            </defs>
 
-        {/* YAxis with padding and label */}
-        <YAxis tickFormatter={(tick) => tick.toFixed(2)}>
-          <Label value="Rainfall (mm)" angle={-90} position="insideLeft" offset={10} /> {/* Adjusted offset */}
-        </YAxis>
+            <CartesianGrid strokeDasharray="3 3" />
+            
+            <XAxis dataKey="time" tickFormatter={xAxisTickFormatter} angle={-45} textAnchor="end">
+              <Label value="Time" offset={-5} position="insideBottom" />
+            </XAxis>
 
-        <Tooltip formatter={tooltipFormatter} />
-        <Legend />
+            <YAxis tickFormatter={(tick) => tick.toFixed(2)}>
+              <Label value="Rainfall (mm)" angle={-90} position="insideLeft" />
+            </YAxis>
 
-        {/* Line without point labels, only hover works */}
-        <Line type="monotone" dataKey="rainfall" stroke="#8884d8" />
-      </LineChart>
+            <Tooltip formatter={tooltipFormatter} />
+            <Legend />
+
+            <Line type="monotone" dataKey="rainfall" stroke="#8884d8" dot={false} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 };
