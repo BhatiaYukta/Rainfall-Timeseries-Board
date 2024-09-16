@@ -22,9 +22,15 @@ def get_rainfall_data():
     if isinstance(data, str):  # If there's an error message
         return jsonify({'error': data}), 500
 
-    # Date range logic
-    end_date = request.args.get('end_date', data['time'].max().strftime('%Y-%m-%d'))
-    start_date = request.args.get('start_date', (pd.to_datetime(end_date) - pd.DateOffset(months=3)).strftime('%Y-%m-%d'))
+    # Get the end date as the latest date in the dataset
+    max_date_in_data = data['time'].max()
+    
+    # Calculate the start date of the last 3 months from the max date in the dataset
+    last_3_months_start = max_date_in_data - pd.DateOffset(months=3)
+
+    # Date range logic (you can also pass custom dates via request arguments)
+    end_date = request.args.get('end_date', max_date_in_data.strftime('%Y-%m-%d'))
+    start_date = request.args.get('start_date', last_3_months_start.strftime('%Y-%m-%d'))
 
     # Filter the data based on the date range
     mask = (data['time'] >= start_date) & (data['time'] <= end_date)
@@ -34,13 +40,15 @@ def get_rainfall_data():
     result = filtered_data.groupby(pd.Grouper(key='time', freq='h')).agg({'RG_A': 'sum'}).reset_index()
     result.columns = ['time', 'total_rainfall']
 
-    # Prepare the response
+    # Prepare the response, adding last 3 months start and end dates
     response = {
         "rainfall_data": result.to_dict(orient='records'),
         "min_date": data['time'].min().strftime('%Y-%m-%d'),
-        "max_date": data['time'].max().strftime('%Y-%m-%d')
+        "max_date": data['time'].max().strftime('%Y-%m-%d'),
+        "last_3_months_start": last_3_months_start.strftime('%Y-%m-%d'),
+        "last_3_months_end": max_date_in_data.strftime('%Y-%m-%d')
     }
-    
+
     return jsonify(response)
 
 if __name__ == '__main__':

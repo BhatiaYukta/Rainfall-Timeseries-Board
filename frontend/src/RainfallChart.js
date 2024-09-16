@@ -6,13 +6,10 @@ const RainfallChart = ({ selectedRegion }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [dateRange, setDateRange] = useState({
-    start: moment().subtract(3, 'months').format('YYYY-MM-DD'), // Default to last 3 months
-    end: moment().format('YYYY-MM-DD'),  // Default to today
-  });
-
-  const [startDate, setStartDate] = useState(dateRange.start);
-  const [endDate, setEndDate] = useState(dateRange.end);
+  const [dateRange, setDateRange] = useState({ start: '', end: '' });
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [timeFilter, setTimeFilter] = useState('hour');  // Default time filter is 'hour'
 
   // Fetch data based on date range and selected region
   const fetchData = async (start, end, region) => {
@@ -23,6 +20,15 @@ const RainfallChart = ({ selectedRegion }) => {
       );
       const result = await response.json();
       setData(result.rainfall_data);
+
+      if (!startDate && !endDate) {
+        setDateRange({
+          start: result.last_3_months_start,
+          end: result.last_3_months_end,
+        });
+        setStartDate(result.last_3_months_start);
+        setEndDate(result.last_3_months_end);
+      }
     } catch (error) {
       setError(error);
     } finally {
@@ -32,7 +38,7 @@ const RainfallChart = ({ selectedRegion }) => {
 
   // Fetch data when component mounts or date range/region changes
   useEffect(() => {
-    fetchData(dateRange.start, dateRange.end, selectedRegion.name);
+    fetchData(dateRange.start || moment().subtract(3, 'months').format('YYYY-MM-DD'), dateRange.end || moment().format('YYYY-MM-DD'), selectedRegion.name);
   }, [dateRange, selectedRegion]);
 
   const handleApply = () => {
@@ -42,12 +48,44 @@ const RainfallChart = ({ selectedRegion }) => {
     });
   };
 
-  const formattedData = useMemo(() => {
-    return data.map((item) => ({
-      time: moment(item.time).format('YYYY-MM-DD HH:mm'),
-      rainfall: item.total_rainfall,
+  // Helper function to aggregate data
+  const aggregateData = (data, timeUnit) => {
+    const groupedData = data.reduce((acc, curr) => {
+      const timeKey = moment(curr.time).startOf(timeUnit).format({
+        hour: 'YYYY-MM-DD HH:00',  // Group by hour (start of each hour)
+        day: 'YYYY-MM-DD',          // Group by day
+        month: 'YYYY-MM',           // Group by month
+      }[timeFilter]);               // Use selected time filter
+
+      if (!acc[timeKey]) {
+        acc[timeKey] = 0;
+      }
+      acc[timeKey] += curr.total_rainfall;  // Sum rainfall for the time period
+
+      return acc;
+    }, {});
+
+    // Convert the grouped data into an array for charting
+    return Object.keys(groupedData).map((key) => ({
+      time: key,
+      rainfall: groupedData[key],
     }));
-  }, [data]);
+  };
+
+  // Group and aggregate data based on the selected time filter
+  const formattedData = useMemo(() => {
+    const timeUnit = {
+      hour: 'hour',
+      day: 'day',
+      month: 'month',
+    }[timeFilter];  // Map selected time filter to the corresponding time unit
+
+    return aggregateData(data, timeUnit);
+  }, [data, timeFilter]);
+
+  const handleTimeFilterChange = (e) => {
+    setTimeFilter(e.target.value);
+  };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -55,7 +93,8 @@ const RainfallChart = ({ selectedRegion }) => {
   return (
     <div>
       <h5>{selectedRegion.name} Rainfall Timeseries Plot</h5>
-      <br></br>
+      <br />
+
       {/* Date Range Filter */}
       <div style={{ marginBottom: '20px' }}>
         <label>Start Date: </label>
@@ -75,6 +114,16 @@ const RainfallChart = ({ selectedRegion }) => {
         <button onClick={handleApply} style={{ marginLeft: '10px' }}>
           Apply
         </button>
+      </div>
+
+      {/* Time Filter Dropdown */}
+      <div style={{ marginBottom: '20px' }}>
+        <label>Show data by: </label>
+        <select value={timeFilter} onChange={handleTimeFilterChange} style={{ marginLeft: '10px' }}>
+          <option value="hour">Hour</option>
+          <option value="day">Day</option>
+          <option value="month">Month</option>
+        </select>
       </div>
 
       {/* Graph */}
