@@ -159,7 +159,7 @@ const RainfallChart = ({ selectedRegion }) => {
 
             <defs>
               {/* Defining the gradient pattern for rain effect */}
-              <linearGradient id="rainBackground" x1="0%" y1="0%" x2="0%" y2="100%">
+              <linearGradient  x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" style={{ stopColor: 'rgba(0, 119, 255, 0.2)', stopOpacity: 1 }} />
                 <stop offset="100%" style={{ stopColor: 'rgba(255, 255, 255, 0.8)', stopOpacity: 1 }} />
               </linearGradient>
