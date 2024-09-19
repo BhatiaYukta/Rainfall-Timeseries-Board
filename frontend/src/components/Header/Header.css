@@ -4,8 +4,8 @@
 .navbar-brand {
   font-size: 26px;
   font-weight: bold;
-  color: #c82333 !important;
-  margin-left: -6%; /* Adjust this value as needed */
+  color: rgb(255, 255, 255) !important;
+  margin-left: 6%; /* Adjust this value as needed */
   margin-right: 0px;
 }
 
@@ -13,17 +13,21 @@
 .nav-item {
   font-size: 18px;
   padding: 15px 15px;
-  color: #000;
+  color: rgb(255, 255, 255);
   text-decoration: none;
 }
 
 .nav-item.active {
   font-weight: bold;
-  color: #000 !important;
-  border-bottom: 2px solid #c82333;
+  color: rgb(255, 255, 255) !important;
+  border-bottom: 2px solid #332add;
 }
 
 .nav-item:hover {
-  color: #000;
+  color: rgb(255, 255, 255);
   text-decoration: none;
+}
+
+.RainLogo{
+  height:50px;
 }
