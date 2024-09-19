@@ -8,8 +8,8 @@ import {
 import Header from "./components/Header/Header";
 import "./App.css"; // Import custom CSS
 import Footer from "./components/Footer/Footer";
-import RainfallChart from "./RainfallChart";
-import MapWithMarkers from "./MapWithMarkers";
+import RainfallChart from "./components/RainfallChart/RainfallChart";
+import MapWithMarkers from "./components/MapWithMarkers.js/MapWithMarkers";
 
 function App() {
   const [selectedRegion, setSelectedRegion] = useState({
